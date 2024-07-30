@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"auction/service"
-	"log"
 	"time"
 
 	"github.com/robfig/cron"
@@ -21,13 +20,7 @@ func (s *Scheduler) InitiateTask() {
 }
 
 func (s *Scheduler) InitiateAuctionTask() {
-	log.Println("check status of auctions.....")
-
 	auctions, _ := s.Service.GetExpiredAuctionByTime(time.Now())
-
-	if len(auctions) != 0 {
-		log.Println("expired auction detected.")
-	}
 
 	for _, auction := range auctions {
 		s.Service.TerminateAuction(&auction)
