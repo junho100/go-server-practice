@@ -11,7 +11,7 @@ type Service struct {
 	DB *gorm.DB
 }
 
-func (svc *Service) CreateAuction(name string, endDate time.Time) error {
+func (svc *Service) CreateAuction(name string, endDate time.Time) (*entity.Auction, error) {
 	artwork := &entity.Artwork{
 		Name: name,
 	}
@@ -19,7 +19,7 @@ func (svc *Service) CreateAuction(name string, endDate time.Time) error {
 
 	if err := tx.Create(&artwork).Error; err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
 	}
 
 	auction := &entity.Auction{
@@ -29,8 +29,8 @@ func (svc *Service) CreateAuction(name string, endDate time.Time) error {
 
 	if err := tx.Create(&auction).Error; err != nil {
 		tx.Rollback()
-		return err
+		return nil, err
 	}
 
-	return tx.Commit().Error
+	return auction, tx.Commit().Error
 }

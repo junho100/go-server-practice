@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -49,9 +50,17 @@ func main() {
 			return err
 		}
 
-		svc.CreateAuction(request.Name, time.Time(request.EndDate))
+		auction, err := svc.CreateAuction(request.Name, time.Time(request.EndDate))
 
-		return c.SendString("Hello, World!")
+		if err != nil {
+			return err
+		}
+
+		response := &dto.CreateAuctionResponse{
+			ID: auction.ID,
+		}
+
+		return c.Status(http.StatusOK).JSON(response)
 	})
 
 	log.Fatal(app.Listen(":3000"))
