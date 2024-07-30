@@ -30,12 +30,12 @@ func main() {
 	db.AutoMigrate(&entity.Artwork{}, &entity.Buyer{}, &entity.Bidding{}, &entity.Auction{})
 
 	if err != nil {
-		log.Println(err)
+		log.Fatalf("Error initialize database: %s", err)
 	}
 
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	app.Post("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World!")
 	})
 

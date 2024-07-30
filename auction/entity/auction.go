@@ -7,5 +7,6 @@ import (
 type Auction struct {
 	ID        int
 	EndDate   time.Time
-	ArtworkID int
+	Status    string `gorm:"default:ACTIVE"`
+	ArtworkID int    `gorm:"not null"`
 }
