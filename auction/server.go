@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"auction/dto"
 	"auction/entity"
+	"auction/service"
 )
 
 func main() {
@@ -35,7 +38,19 @@ func main() {
 
 	app := fiber.New()
 
-	app.Post("/", func(c *fiber.Ctx) error {
+	svc := &service.Service{
+		DB: db,
+	}
+
+	app.Post("/auction", func(c *fiber.Ctx) error {
+		request := &dto.CreateAuctionRequest{}
+
+		if err := c.BodyParser(request); err != nil {
+			return err
+		}
+
+		svc.CreateAuction(request.Name, time.Time(request.EndDate))
+
 		return c.SendString("Hello, World!")
 	})
 
