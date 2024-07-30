@@ -2,6 +2,7 @@ package service
 
 import (
 	"auction/entity"
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -60,4 +61,46 @@ func (svc *Service) CreateBidding(auctionID int, userID int, requestPrice int) (
 	}
 
 	return bidding, nil
+}
+
+func (svc *Service) GetExpiredAuctionByTime(nowTime time.Time) ([]entity.Auction, error) {
+	var auctions []entity.Auction
+
+	err := svc.DB.Where("end_date < ? AND status = ?", nowTime, "ACTIVE").Find(&auctions).Error
+
+	if err != nil {
+		return []entity.Auction{}, err
+	}
+
+	return auctions, nil
+}
+
+func (svc *Service) TerminateAuction(auction *entity.Auction) {
+	var (
+		bidding entity.Bidding
+		buyer   entity.Buyer
+		artwork entity.Artwork
+	)
+	tx := svc.DB.Begin()
+
+	err := svc.DB.Order("request_price desc").Where("auction_id = ?", auction.ID).First(&bidding).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		auction.Status = "FAILED"
+		svc.DB.Save(&auction)
+		return
+	}
+
+	svc.DB.First(&buyer, bidding.BuyerID)
+	buyer.Balance -= bidding.RequestPrice
+	svc.DB.Save(&buyer)
+
+	svc.DB.First(&artwork, auction.ArtworkID)
+	artwork.Buyer = &buyer
+	artwork.OwnedBy = &buyer.ID
+	svc.DB.Save(&artwork)
+
+	auction.Status = "TERMINATED"
+	svc.DB.Save(&auction)
+
+	tx.Commit()
 }

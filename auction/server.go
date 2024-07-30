@@ -15,6 +15,7 @@ import (
 
 	"auction/dto"
 	"auction/entity"
+	"auction/scheduler"
 	"auction/service"
 )
 
@@ -43,6 +44,12 @@ func main() {
 	svc := &service.Service{
 		DB: db,
 	}
+
+	scheduler := &scheduler.Scheduler{
+		Service: svc,
+	}
+
+	scheduler.InitiateTask()
 
 	app.Post("/auction", func(c *fiber.Ctx) error {
 		request := &dto.CreateAuctionRequest{}
