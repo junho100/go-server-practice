@@ -34,3 +34,30 @@ func (svc *Service) CreateAuction(name string, endDate time.Time) (*entity.Aucti
 
 	return auction, tx.Commit().Error
 }
+
+func (svc *Service) CreateBidding(auctionID int, userID int, requestPrice int) (*entity.Bidding, error) {
+	var (
+		buyer   entity.Buyer
+		auction entity.Auction
+	)
+
+	if err := svc.DB.First(&buyer, userID).Error; err != nil {
+		return nil, err
+	}
+	if err := svc.DB.First(&auction, auctionID).Error; err != nil {
+		return nil, err
+	}
+
+	bidding := &entity.Bidding{
+		Timestamp:    time.Now(),
+		BuyerID:      userID,
+		AuctionID:    auctionID,
+		RequestPrice: requestPrice,
+	}
+
+	if err := svc.DB.Create(&bidding).Error; err != nil {
+		return nil, err
+	}
+
+	return bidding, nil
+}

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -60,7 +61,33 @@ func main() {
 			ID: auction.ID,
 		}
 
-		return c.Status(http.StatusOK).JSON(response)
+		return c.Status(http.StatusCreated).JSON(response)
+	})
+
+	app.Post("/auction/:id/request-bid", func(c *fiber.Ctx) error {
+		request := &dto.CreateBiddingRequest{}
+
+		if err := c.BodyParser(request); err != nil {
+			return err
+		}
+
+		auctionID, err := strconv.Atoi(c.Params("id"))
+
+		if err != nil {
+			return err
+		}
+
+		_, err = svc.CreateBidding(auctionID, request.UserID, request.RequestPrice)
+
+		if err != nil {
+			return err
+		}
+
+		response := &dto.CreateBiddingResponse{
+			IsSuccess: true,
+		}
+
+		return c.Status(http.StatusCreated).JSON(response)
 	})
 
 	log.Fatal(app.Listen(":3000"))

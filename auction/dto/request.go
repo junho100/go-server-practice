@@ -20,3 +20,8 @@ func (ct *CreateAuctionRequestTime) UnmarshalJSON(b []byte) error {
 	*ct = CreateAuctionRequestTime(t)
 	return nil
 }
+
+type CreateBiddingRequest struct {
+	UserID       int `json:"userId"`
+	RequestPrice int `json:"requestPrice"`
+}
