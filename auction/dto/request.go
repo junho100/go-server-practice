@@ -22,6 +22,6 @@ func (ct *CreateAuctionRequestTime) UnmarshalJSON(b []byte) error {
 }
 
 type CreateBiddingRequest struct {
-	UserID       int `json:"userId"`
-	RequestPrice int `json:"requestPrice"`
+	UserID       int `json:"userId" validate:"required,min=1"`
+	RequestPrice int `json:"requestPrice" validate:"required,min=1"`
 }

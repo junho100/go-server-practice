@@ -118,6 +118,21 @@ func main() {
 			return err
 		}
 
+		if errs := valid.Struct(request); errs != nil {
+
+			errorsString := ""
+
+			for _, err := range errs.(validator.ValidationErrors) {
+				errorsString += err.Field()
+				errorsString += " "
+			}
+
+			return &fiber.Error{
+				Code:    fiber.ErrBadRequest.Code,
+				Message: fmt.Sprintf("Validation Failed: %s", errorsString),
+			}
+		}
+
 		auctionID, err := strconv.Atoi(c.Params("id"))
 
 		if err != nil {
