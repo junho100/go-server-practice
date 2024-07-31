@@ -7,3 +7,7 @@ type CreateAuctionResponse struct {
 type CreateBiddingResponse struct {
 	IsSuccess bool `json:"isSuccess"`
 }
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+}

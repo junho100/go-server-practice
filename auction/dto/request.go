@@ -3,8 +3,8 @@ package dto
 import "time"
 
 type CreateAuctionRequest struct {
-	Name    string                   `json:"name"`
-	EndDate CreateAuctionRequestTime `json:"endDate"`
+	Name    string                   `json:"name" validate:"required,min=1"`
+	EndDate CreateAuctionRequestTime `json:"endDate" validate:"required,dateFormatCheck"`
 }
 
 type CreateAuctionRequestTime time.Time

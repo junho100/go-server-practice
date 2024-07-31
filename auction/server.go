@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
@@ -35,11 +37,34 @@ func main() {
 
 	db.AutoMigrate(&entity.Artwork{}, &entity.Buyer{}, &entity.Bidding{}, &entity.Auction{})
 
+	valid := validator.New()
+	valid.RegisterValidation("dateFormatCheck", func(fl validator.FieldLevel) bool {
+		_, err := time.Parse("2006-01-02", fl.Field().String())
+
+		return err == nil
+	})
+
 	if err != nil {
 		log.Fatalf("Error initialize database: %s", err)
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			code := fiber.StatusInternalServerError
+
+			// Retrieve the custom status code if it's a *fiber.Error
+			var e *fiber.Error
+			if errors.As(err, &e) {
+				code = e.Code
+			}
+
+			response := &dto.ErrorResponse{
+				Message: err.Error(),
+			}
+
+			return c.Status(code).JSON(response)
+		},
+	})
 
 	svc := &service.Service{
 		DB: db,
@@ -56,6 +81,21 @@ func main() {
 
 		if err := c.BodyParser(request); err != nil {
 			return err
+		}
+
+		if errs := valid.Struct(request); errs != nil {
+
+			errorsString := ""
+
+			for _, err := range errs.(validator.ValidationErrors) {
+				errorsString += err.Field()
+				errorsString += " "
+			}
+
+			return &fiber.Error{
+				Code:    fiber.ErrBadRequest.Code,
+				Message: fmt.Sprintf("Validation Failed: %s", errorsString),
+			}
 		}
 
 		auction, err := svc.CreateAuction(request.Name, time.Time(request.EndDate))
