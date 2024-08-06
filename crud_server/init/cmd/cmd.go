@@ -2,19 +2,21 @@ package cmd
 
 import (
 	"crud-server/config"
-	"fmt"
+	"crud-server/network"
 )
 
 type Cmd struct {
-	config *config.Config
+	config  *config.Config
+	network *network.Network
 }
 
 func NewCmd(filePath string) *Cmd {
 	c := &Cmd{
-		config: config.NewConfig(filePath),
+		config:  config.NewConfig(filePath),
+		network: network.NewNetwork(),
 	}
 
-	fmt.Println(c.config.Server.Port)
+	c.network.ServerStart(c.config.Server.Port)
 
 	return c
 }
