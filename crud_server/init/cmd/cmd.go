@@ -1,9 +1,20 @@
 package cmd
 
-type Cmd struct{}
+import (
+	"crud-server/config"
+	"fmt"
+)
 
-func NewCmd() *Cmd {
-	c := &Cmd{}
+type Cmd struct {
+	config *config.Config
+}
+
+func NewCmd(filePath string) *Cmd {
+	c := &Cmd{
+		config: config.NewConfig(filePath),
+	}
+
+	fmt.Println(c.config.Server.Port)
 
 	return c
 }
