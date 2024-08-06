@@ -36,6 +36,14 @@ func newUserRouter(router *Network, userService *service.User) *userRouter {
 }
 
 func (u *userRouter) create(c *gin.Context) {
+	var req types.CreateRequest
+
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+		u.router.failedResponse(c, &types.CreateUserResponse{
+			ApiResponse: types.NewApiResponse("Failed", -1),
+		})
+	}
+
 	u.userService.Create(nil)
 
 	u.router.okResponse(c, &types.CreateUserResponse{
@@ -52,6 +60,12 @@ func (u *userRouter) get(c *gin.Context) {
 }
 
 func (u *userRouter) update(c *gin.Context) {
+	var req types.UpdateRequest
+
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+
+	}
+
 	u.userService.Update(nil, nil)
 
 	u.router.okResponse(c, &types.UpdateUserResponse{
@@ -60,6 +74,12 @@ func (u *userRouter) update(c *gin.Context) {
 }
 
 func (u *userRouter) delete(c *gin.Context) {
+	var req types.DeleteRequest
+
+	if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+
+	}
+
 	u.userService.Delete(nil)
 
 	u.router.okResponse(c, &types.DeleteUserResponse{
