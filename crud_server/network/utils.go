@@ -20,3 +20,11 @@ func (n *Network) registerUPDATE(path string, handler ...gin.HandlerFunc) gin.IR
 func (n *Network) registerDELETE(path string, handler ...gin.HandlerFunc) gin.IRoutes {
 	return n.engin.DELETE(path, handler...)
 }
+
+func (n *Network) okResponse(c *gin.Context, result interface{}) {
+	c.JSON(200, result)
+}
+
+func (n *Network) failedResponse(c *gin.Context, result interface{}) {
+	c.JSON(400, result)
+}
